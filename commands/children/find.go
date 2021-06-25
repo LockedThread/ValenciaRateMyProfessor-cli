@@ -24,7 +24,11 @@ var FindCmd = &cobra.Command{
 			fmt.Println("Please provide the name of the professor you want to search for.")
 			return
 		}
-		professor := database.FindProfessor(atoi, name)
+		professor, err := database.FindProfessor(atoi, name)
+		if err != nil {
+			fmt.Printf("Error: %s", err)
+			return
+		}
 		fmt.Println(professor)
 	},
 }

@@ -20,5 +20,5 @@ func RootExecute() error {
 }
 
 func RootInit() {
-	rootCmd.AddCommand(children.ScrapeCmd, children.FindCmd)
+	rootCmd.AddCommand(children.ScrapeCmd, children.FindCmd, children.FileSearch)
 }

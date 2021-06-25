@@ -1,6 +1,9 @@
 package rate_my_professor
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+)
 
 type Professors struct {
 	Professors []*Professor `json:"professors"`
@@ -17,15 +20,23 @@ type Professor struct {
 	MiddleName      string `json:"tMiddlename"`
 	LastName        string `json:"tLname"`
 	TeacherID       int    `json:"tid"`
-	RatingsCount    int    `json:"tNumRatings"`
+	RatingsCount    int    `json:"tNumRatings" bson:"ratingCount"`
 	RatingClass     string `json:"rating_class"`
 	ContentType     string `json:"contentType"`
 	CategoryType    string `json:"categoryType"`
 	OverallRating   string `json:"overall_rating"`
 }
 
+func (p Professor) CalculateRating() float64 {
+	float, err := strconv.ParseFloat(p.OverallRating, 64)
+	if err != nil {
+		return 0.0
+	}
+	return float * float64(p.RatingsCount)
+}
+
 func (p Professor) String() string {
-	return fmt.Sprintf("Department: %s, Tsid: %s, InstitutionName: %s, FirstName: %s, MiddleName: %s, LastName: %s, TeacherID: %d, RatingsCount: %d, RatingClass: %s, ContentType: %s, CategoryType: %s, OverallRating: %s",
+	return fmt.Sprintf("Department: %s, Tsid: %s, InstitutionName: %s, FirstName: %s, MiddleName: %s, LastName: %s, TeacherID: %d, RatingsCount: %d, RatingClass: %s, ContentType: %s, CategoryType: %s, OverallRating: %f",
 		p.Department,
 		p.Tsid,
 		p.InstitutionName,

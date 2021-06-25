@@ -2,6 +2,7 @@ package database
 
 import (
 	"cli/model/rate_my_professor"
+	"cli/scrape"
 	"context"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
@@ -54,6 +55,11 @@ func InsertScrapeData(schoolId int, professors rate_my_professor.Professors) []i
 		})
 	}
 
+	if len(documents) == 0 {
+		fmt.Printf("Document length is 0")
+		return nil
+	}
+
 	count, err := collection.EstimatedDocumentCount(context.Background())
 	if err != nil {
 		log.Fatalln(err)
@@ -83,22 +89,32 @@ func InsertScrapeData(schoolId int, professors rate_my_professor.Professors) []i
 
 }
 
-func FindProfessor(schoolId int, name string) (professor rate_my_professor.Professor) {
+func FindProfessor(schoolId int, name string) (professor *rate_my_professor.Professor, err error) {
 	collection := getCollection(fmt.Sprintf("%s.%d", "professors", schoolId))
+
+	count, err := collection.EstimatedDocumentCount(context.Background())
+	if err != nil {
+		log.Fatalln(err)
+	}
+	if count == 0 {
+		data := scrape.ScrapeProfessors(schoolId)
+		_ = InsertScrapeData(schoolId, data)
+	}
+
 	find := collection.FindOne(context.Background(), bson.M{
 		"$text": bson.M{
 			"$search": name,
 		},
 	})
 	if find.Err() != nil {
-		log.Fatalln(find.Err())
+		return nil, err
 	}
 
-	err := find.Decode(&professor)
+	err = find.Decode(&professor)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	return professor
+	return professor, err
 }
 
 // Utility methods
