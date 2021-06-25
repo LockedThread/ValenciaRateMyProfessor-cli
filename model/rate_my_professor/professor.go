@@ -3,10 +3,10 @@ package rate_my_professor
 import "fmt"
 
 type Professors struct {
-	Professors []Professor `json:"professors"`
-	Total      int         `json:"searchResultsTotal"`
-	Remaining  int         `json:"remaining"`
-	Type       string      `json:"type"`
+	Professors []*Professor `json:"professors"`
+	Total      int          `json:"searchResultsTotal"`
+	Remaining  int          `json:"remaining"`
+	Type       string       `json:"type"`
 }
 
 type Professor struct {

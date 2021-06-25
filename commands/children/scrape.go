@@ -1,6 +1,7 @@
 package children
 
 import (
+	"cli/database"
 	"cli/model/rate_my_professor"
 	"encoding/json"
 	"fmt"
@@ -21,12 +22,12 @@ var ScrapeCmd = &cobra.Command{
 		}
 		professors := scrapeProfessors(atoi)
 		for _, professor := range professors.Professors {
-			fmt.Println(professor)
+			fmt.Println(*professor)
 		}
 
 		fmt.Println(professors.Total)
 
-
+		_ = database.InsertScrapeData(atoi, professors)
 	},
 }
 
@@ -62,17 +63,19 @@ func startScraping(professors rate_my_professor.Professors, schoolId int, page i
 
 	if page == 1 {
 		professors = professorsUnmarshalled
-		professorArray := make([]rate_my_professor.Professor, professorsUnmarshalled.Total)
+		professorArray := make([]*rate_my_professor.Professor, len(professorsUnmarshalled.Professors))
 		copy(professorArray, professors.Professors)
 		professors.Professors = professorArray
 	} else {
-		professors.Professors = append(professors.Professors, professorsUnmarshalled.Professors...)
-		professors.Remaining = professorsUnmarshalled.Remaining
-		if professors.Remaining <= 20 {
-			return professors
+		for _, professor := range professorsUnmarshalled.Professors {
+			if professor != nil {
+				professors.Professors = append(professors.Professors, professor)
+			}
 		}
 	}
+	if professorsUnmarshalled.Remaining <= 20 {
+		return professors
+	}
 
-	//return professors
 	return startScraping(professors, schoolId, page+1)
 }
