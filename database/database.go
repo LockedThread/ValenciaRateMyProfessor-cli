@@ -63,6 +63,22 @@ func InsertScrapeData(schoolId int, professors rate_my_professor.Professors) []i
 		if err != nil {
 			log.Fatalln(err)
 		}
+		_, err = collection.Indexes().DropAll(context.Background())
+		if err != nil {
+			log.Fatalln(err)
+		}
+	}
+	_, err = collection.Indexes().CreateOne(context.Background(), mongo.IndexModel{
+		Keys: "firstName",
+	})
+	if err != nil {
+		log.Fatalln(err)
+	}
+	_, err = collection.Indexes().CreateOne(context.Background(), mongo.IndexModel{
+		Keys: "lastName",
+	})
+	if err != nil {
+		log.Fatalln(err)
 	}
 
 	result, err := collection.InsertMany(context.Background(), documents)
