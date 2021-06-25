@@ -42,14 +42,15 @@ func InsertScrapeData(schoolId int, professors rate_my_professor.Professors) []i
 	for _, professor := range professors.Professors {
 		p := *professor
 		documents = append(documents, bson.M{
-			"firstName":     p.FirstName,
-			"middleName":    p.MiddleName,
-			"lastName":      p.LastName,
-			"teacherId":     p.TeacherID,
-			"department":    p.Department,
-			"ratingCount":   p.RatingsCount,
-			"ratingClass":   p.RatingClass,
-			"overallRating": p.OverallRating,
+			"firstName":       p.FirstName,
+			"middleName":      p.MiddleName,
+			"lastName":        p.LastName,
+			"teacherId":       p.TeacherID,
+			"department":      p.Department,
+			"ratingCount":     p.RatingsCount,
+			"ratingClass":     p.RatingClass,
+			"overallRating":   p.OverallRating,
+			"institutionName": p.InstitutionName,
 		})
 	}
 
@@ -63,30 +64,41 @@ func InsertScrapeData(schoolId int, professors rate_my_professor.Professors) []i
 		if err != nil {
 			log.Fatalln(err)
 		}
-		_, err = collection.Indexes().DropAll(context.Background())
-		if err != nil {
-			log.Fatalln(err)
-		}
 	}
-	_, err = collection.Indexes().CreateOne(context.Background(), mongo.IndexModel{
-		Keys: "firstName",
-	})
-	if err != nil {
-		log.Fatalln(err)
-	}
-	_, err = collection.Indexes().CreateOne(context.Background(), mongo.IndexModel{
-		Keys: "lastName",
-	})
-	if err != nil {
-		log.Fatalln(err)
-	}
+	collection = getCollection(fmt.Sprintf("%s.%d", "professors", schoolId))
 
 	result, err := collection.InsertMany(context.Background(), documents)
 	if err != nil {
 		log.Fatalln(err)
 	}
+	_, err = collection.Indexes().CreateMany(context.Background(), []mongo.IndexModel{
+		{
+			Keys: bson.D{{"lastName", "text"}, {"firstName", "text"}},
+		},
+	})
+	if err != nil {
+		log.Fatalln(err)
+	}
 	return result.InsertedIDs
 
+}
+
+func FindProfessor(schoolId int, name string) (professor rate_my_professor.Professor) {
+	collection := getCollection(fmt.Sprintf("%s.%d", "professors", schoolId))
+	find := collection.FindOne(context.Background(), bson.M{
+		"$text": bson.M{
+			"$search": name,
+		},
+	})
+	if find.Err() != nil {
+		log.Fatalln(find.Err())
+	}
+
+	err := find.Decode(&professor)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	return professor
 }
 
 // Utility methods
