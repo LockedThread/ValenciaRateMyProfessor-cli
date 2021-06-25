@@ -44,20 +44,16 @@ var FileSearch = &cobra.Command{
 
 			p, err := database.FindProfessor(valencia.Campuses[course.CampusID], professorFullName.FirstAndLast())
 			if err != nil {
-				log.Fatalf("Fuck: %s\n", err)
+				log.Fatalf("Error: %s\n", err)
 			}
-			fmt.Println(p)
 			if p != nil {
 				professor := *p
 				_, err = strconv.ParseFloat(professor.OverallRating, 64)
 				if err == nil {
 					professors = append(professors, professor)
-				} else {
-					log.Printf("Fuck: %s\n", err)
 				}
 			}
 		}
-		fmt.Println("shit")
 		sort.SliceStable(professors, func(i, j int) bool {
 			float1, _ := strconv.ParseFloat(professors[i].OverallRating, 64)
 			float2, _ := strconv.ParseFloat(professors[j].OverallRating, 64)

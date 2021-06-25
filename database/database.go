@@ -56,7 +56,6 @@ func InsertScrapeData(schoolId int, professors rate_my_professor.Professors) []i
 	}
 
 	if len(documents) == 0 {
-		fmt.Printf("Document length is 0")
 		return nil
 	}
 
