@@ -13,18 +13,18 @@ type Professors struct {
 }
 
 type Professor struct {
-	Department      string `json:"tDept"`
+	Department      string `json:"tDept" bson:"department"`
 	Tsid            string `json:"tSid"` // TODO: Figure out what this is
-	InstitutionName string `json:"institution_name"`
-	FirstName       string `json:"tFname"`
-	MiddleName      string `json:"tMiddlename"`
-	LastName        string `json:"tLname"`
-	TeacherID       int    `json:"tid"`
+	InstitutionName string `json:"institution_name" bson:"institutionName"`
+	FirstName       string `json:"tFname" bson:"firstName"`
+	MiddleName      string `json:"tMiddlename" bson:"middleName"`
+	LastName        string `json:"tLname" bson:"lastName"`
+	TeacherID       int    `json:"tid" bson:"teacherId"`
 	RatingsCount    int    `json:"tNumRatings" bson:"ratingCount"`
-	RatingClass     string `json:"rating_class"`
+	RatingClass     string `json:"rating_class" bson:"ratingClass"`
 	ContentType     string `json:"contentType"`
 	CategoryType    string `json:"categoryType"`
-	OverallRating   string `json:"overall_rating"`
+	OverallRating   string `json:"overall_rating" bson:"overallRating"`
 }
 
 func (p Professor) CalculateRating() float64 {
